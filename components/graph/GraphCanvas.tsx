@@ -10,26 +10,49 @@ import {
   applyEdgeChanges,
   addEdge,
   type Connection,
+  Handle,
+  Position,
+  NodeProps,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { NodeType } from '@/lib/types/graph';
 
 interface NodeData {
   label: string;
 }
 
-interface CustomNode {
-  id: string;
-  type: string;
-  position: { x: number; y: number };
-  data: NodeData;
-}
+// Define the data structure for our nodes
+type CustomNodeData = {
+    label: string;
+  };
 
-interface CustomEdge {
-  id: string;
-  source: string;
-  target: string;
-  type: string;
+// Business Node Component
+function BusinessNode({ data }: NodeProps<{ data: CustomNodeData }>) {
+    return (
+      <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-stone-400">
+        <Handle type="target" position={Position.Top} />
+        <div className="font-bold">{data.label}</div>
+        <Handle type="source" position={Position.Bottom} />
+      </div>
+    );
+  }
+  
+// Product Node Component
+function ProductNode({ data }: NodeProps<{ data: CustomNodeData }>) {
+    return (
+      <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-blue-400">
+        <Handle type="target" position={Position.Top} />
+        <div className="font-bold">{data.label}</div>
+        <Handle type="source" position={Position.Bottom} />
+      </div>
+    );
 }
+  
+  // Map our node types to custom components
+  const nodeTypes = {
+    business: BusinessNode,
+    product: ProductNode,
+  };
 
 
 const initialNodes = [
@@ -37,13 +60,13 @@ const initialNodes = [
       id: '1',
       data: { label: 'Apple' },
       position: { x: 250, y: 250 },
-      type: 'default',
+      type: 'business',
     },
     {
       id: '2',
       data: { label: 'iPhone' },
       position: { x: 500, y: 250 },
-      type: 'default',
+      type: 'product',
     },
   ];
 
@@ -76,6 +99,7 @@ export function GraphCanvas() {
         edges={edges}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        nodeTypes={nodeTypes}
         fitView
       >
         <Background />
