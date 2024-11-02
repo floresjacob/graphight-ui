@@ -1,9 +1,9 @@
-// // app/explore/page.tsx
+// app/explore/page.tsx
 'use client';
 
+import React, { useEffect } from 'react';
 import { GraphCanvas } from '@/components/graph/GraphCanvas';
 import { useGraphStore } from '@/lib/store/graph-store';
-import { useEffect } from 'react';
 
 // Sample data for testing
 const sampleData = {
@@ -50,13 +50,23 @@ const sampleData = {
 export default function Page() {
   const { setNodes, setEdges, nodes, edges } = useGraphStore();
 
-  // Initialize store with sample data only once
+  // Initialize store with sample data
   useEffect(() => {
-    if (nodes.length === 0 && edges.length === 0) {
-      setNodes(sampleData.nodes);
-      setEdges(sampleData.edges);
-    }
-  }, [setNodes, setEdges, nodes.length, edges.length]);
+    const initializeStore = () => {
+      try {
+        if (nodes.length === 0) {
+          setNodes(sampleData.nodes);
+        }
+        if (edges.length === 0) {
+          setEdges(sampleData.edges);
+        }
+      } catch (error) {
+        console.error('Error initializing store:', error);
+      }
+    };
+
+    initializeStore();
+  }, [nodes.length, edges.length, setNodes, setEdges]);
 
   return (
     <div className="p-4">
@@ -69,17 +79,3 @@ export default function Page() {
     </div>
   );
 }
-
-//// app/explore/page.tsx
-// 'use client';
-
-// import { MinimalTest } from '@/components/graph/MinimalTest';
-
-// export default function Page() {
-//   return (
-//     <div className="p-4">
-//       <h1 className="text-lg font-bold mb-4">Minimal Test</h1>
-//       <MinimalTest />
-//     </div>
-//   );
-// }
