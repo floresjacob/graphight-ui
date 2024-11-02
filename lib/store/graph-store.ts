@@ -1,7 +1,7 @@
 // lib/store/graph-store.ts
-
 import { create } from 'zustand';
-import { Node, Edge, GraphData, NodeType } from '../types/graph';
+import { Connection } from '@xyflow/react';
+import { Node, Edge, GraphData, NodeType, EdgeType } from '../types/graph';
 
 interface GraphStore {
   nodes: Node[];
@@ -17,7 +17,9 @@ interface GraphStore {
   setEdges: (edges: Edge[]) => void;
   selectNode: (node: Node | null) => void;
   selectEdge: (edge: Edge | null) => void;
+  addEdge: (connection: Connection) => void;
   updateFilters: (filters: Partial<GraphStore['filters']>) => void;
+  updateNodePosition: (id: string, position: { x: number; y: number }) => void;
 }
 
 export const useGraphStore = create<GraphStore>((set) => ({
@@ -34,8 +36,32 @@ export const useGraphStore = create<GraphStore>((set) => ({
   setEdges: (edges) => set({ edges }),
   selectNode: (node) => set({ selectedNode: node }),
   selectEdge: (edge) => set({ selectedEdge: edge }),
-  updateFilters: (filters) =>
-    set((state) => ({
-      filters: { ...state.filters, ...filters },
-    })),
+  addEdge: (connection) => set((state) => {
+    if (!connection.source || !connection.target) return state;
+
+    const newEdge: Edge = {
+      id: `e${connection.source}-${connection.target}-${Date.now()}`,
+      source: connection.source,
+      target: connection.target,
+      type: 'produces',
+      properties: {
+        strength: 1,
+        lastUpdated: new Date().toISOString(),
+      },
+    };
+
+    return {
+      edges: [...state.edges, newEdge]
+    };
+  }),
+  updateFilters: (filters) => set((state) => ({
+    filters: { ...state.filters, ...filters },
+  })),
+  updateNodePosition: (id, position) => set((state) => ({
+    nodes: state.nodes.map((node) => 
+      node.id === id 
+        ? { ...node, properties: { ...node.properties, position } }
+        : node
+    ),
+  })),
 }));
