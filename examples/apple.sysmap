@@ -1,0 +1,54 @@
+# Apple Inc. System Map
+# Generated from SampleData.js
+
+@config
+name: "Apple Inc. Business Map"
+version: "1.0"
+created: "2025-10-18"
+description: "Apple's core business entities and relationships"
+
+@entities
+
+[business] apple_inc {
+  label: "Apple Inc."
+  industry: "Technology"
+  location: "Cupertino, CA"
+  revenue: 365800000000
+}
+
+[product] iphone {
+  label: "iPhone"
+  category: "Smartphone"
+  price: 999
+  release_date: "2023-09"
+}
+
+[service] icloud {
+  label: "iCloud"
+  type: "Cloud Storage"
+  subscription: true
+  monthly_fee: 9.99
+}
+
+[customer] enterprise_corp {
+  label: "Enterprise Corp"
+  type: "B2B"
+  location: "New York, NY"
+}
+
+@relationships
+
+apple_inc --produces--> iphone
+
+apple_inc --provides--> icloud
+
+iphone --supplies--> enterprise_corp
+
+icloud --supplies--> enterprise_corp
+
+@notes
+
+This map represents Apple Inc.'s core business structure including their flagship iPhone product,
+iCloud service, and their enterprise customer segment.
+
+The revenue figure represents Apple's annual revenue of $365.8 billion.
