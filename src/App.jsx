@@ -45,6 +45,40 @@ function App() {
   });
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedEdge, setSelectedEdge] = useState(null);
+  const [sidebarWidth, setSidebarWidth] = useState(300);
+  const [isResizing, setIsResizing] = useState(false);
+
+  // Handle sidebar resizing
+  const handleMouseDown = useCallback(() => {
+    setIsResizing(true);
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  const handleMouseMove = useCallback((e) => {
+    if (isResizing) {
+      const newWidth = e.clientX;
+      if (newWidth >= 200 && newWidth <= 600) {
+        setSidebarWidth(newWidth);
+      }
+    }
+  }, [isResizing]);
+
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    } else {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    }
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, handleMouseMove, handleMouseUp]);
 
   // Handle node changes (position, selection)
   const onNodesChange = useCallback(
@@ -150,8 +184,17 @@ function App() {
   );
 
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex' }}>
-      <div style={{ width: '20%', height: '100%', overflow: 'auto', borderRight: '1px solid #ccc' }}>
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', userSelect: isResizing ? 'none' : 'auto' }}>
+      <div
+        style={{
+          width: `${sidebarWidth}px`,
+          height: '100%',
+          overflow: 'auto',
+          position: 'relative',
+          padding: '10px',
+          boxSizing: 'border-box'
+        }}
+      >
         <NodeCreator onAddNode={handleAddNode} nodes={nodes} />
         <ExportButton />
         <SearchBar onSearch={handleSearch} />
@@ -159,7 +202,7 @@ function App() {
           selectedNode={selectedNode}
           selectedEdge={selectedEdge}
           onUpdateNode={(updatedNode) => {
-            const updatedNodes = nodes.map(node => 
+            const updatedNodes = nodes.map(node =>
               node.id === updatedNode.id ? updatedNode : node
             );
             setNodes(updatedNodes);
@@ -167,7 +210,41 @@ function App() {
           }}
         />
       </div>
-      <div style={{ width: '80%', height: '100%' }}>
+      <div
+        onMouseDown={handleMouseDown}
+        style={{
+          width: '5px',
+          cursor: 'col-resize',
+          backgroundColor: isResizing ? '#007bff' : '#ccc',
+          transition: 'background-color 0.2s ease',
+          position: 'relative'
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '20px',
+            height: '40px',
+            backgroundColor: isResizing ? '#007bff' : '#888',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '10px',
+            pointerEvents: 'none'
+          }}
+        >
+          ⋮
+        </div>
+      </div>
+      <div style={{
+        width: `calc(100% - ${sidebarWidth}px - 5px)`,
+        height: '100%'
+      }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}

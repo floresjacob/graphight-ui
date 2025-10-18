@@ -21,7 +21,8 @@ function SearchBar({ onSearch }) {
         padding: '8px',
         marginBottom: '20px',
         borderRadius: '4px',
-        border: '1px solid #ccc'
+        border: '1px solid #ccc',
+        boxSizing: 'border-box'
       }}
     />
   );
